@@ -181,9 +181,10 @@ XKit.extensions.people_notifier = new Object({
 	
 	check_blog: function(url, obj) {
 		
+		// TODO: change API key
 		GM_xmlhttpRequest({
 			method: "GET",
-			url: "http://" + url + ".tumblr.com/api/read/json",
+			url: "https://api.tumblr.com/v2/blog/" + url + "/posts?api_key=fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4",
 			json: false,
 			onerror: function(response) {
 				console.log("people-notifier -> Error getting page.");
@@ -192,14 +193,14 @@ XKit.extensions.people_notifier = new Object({
 			},
 			onload: function(response) {
 				
-				var data = response.responseText.substring(22, response.responseText.length - 2);
+				var data = response.responseText;
 				
 				try {
-					data = JSON.parse(data);
+					data = JSON.parse(data).response;
 					//console.log("people-notifier -> got data for " + url);
-					//console.log(" |-- last post timestamp = " + (data.posts[0]["unix-timestamp"] * 1000) + " vs last-check = " + obj.last_check);
+					//console.log(" |-- last post timestamp = " + (data.posts[0].timestamp * 1000) + " vs last-check = " + obj.last_check);
 
-					if (data["posts-total"] === 0 || data["posts-total"] <= 2) {
+					if (data.blog.posts <= 2) {
 						XKit.extensions.people_notifier.show_error_on_sidebar_blog(url, true);
 						return;	
 					}
@@ -234,7 +235,7 @@ XKit.extensions.people_notifier = new Object({
 						}*/
 						
 						if (typeof data.posts[lad_count] !== "undefined") {
-							if ((data.posts[lad_count]["unix-timestamp"] * 1000) >= obj.last_check) {
+							if ((data.posts[lad_count].timestamp * 1000) >= obj.last_check) {
 								console.log("\-- Found post = " + data.posts[lad_count].id);
 								found_count++;	
 							} else {
@@ -297,7 +298,7 @@ XKit.extensions.people_notifier = new Object({
 			for (var i=0;i<this.blogs.length;i++) {
 				
 				m_html = m_html + 	"<li id=\"xkit-people-notifier-for---" + this.blogs[i].url + "\" data-url=\"" + this.blogs[i].url + "\" class=\"no_push xkit-people-notifier-person\">" +
-								"<img src=\"http://api.tumblr.com/v2/blog/" + this.blogs[i].url + ".tumblr.com/avatar/16\" class=\"people-notifier-avatar\">" +
+								"<img src=\"https://api.tumblr.com/v2/blog/" + this.blogs[i].url + ".tumblr.com/avatar/16\" class=\"people-notifier-avatar\">" +
 								"<a>" +
 									"<div class=\"hide_overflow\">" + this.blogs[i].url + "</div>";
 									
