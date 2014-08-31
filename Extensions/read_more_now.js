@@ -36,28 +36,27 @@ XKit.extensions.read_more_now = new Object({
 		$(document).on('click', '.xkit-read-more-now', function() {
 			$(this).addClass("disabled");
 			$(this).html("Retrieving post...");
-			var m_url = $(this).parent().find(".read_more").attr('href').replace('/post/', '/api/read/json?id=');
-			var m_part = m_url.substring(m_url.indexOf('?id=') + 4);
-			if (m_part.indexOf('/') !== -1) {
-				var m_tmp = m_url.substring(0, m_url.indexOf('?id=') + 4);
-				m_part = m_part.substring(0, m_part.indexOf('/'));
-				m_url = m_tmp + m_part;
-			}
+
+			// TODO: change API key
+			var m_url = $(this).parent().find(".read_more").attr('href');
+			var regex = /^https?:\/\/([^\/]+)\/post\/([0-9]+)/i;
+			var match = m_url.match(regex);
+			m_url = "https://api.tumblr.com/v2/blog/" + match[1] + "/posts?api_key=fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4&id=" + match[2];
+
 			var m_cont = $(this);
 			GM_xmlhttpRequest({
 				method: "GET",
 				dataType: "json",
 				url: m_url + "&getid=" + XKit.tools.random_string(),
 				onload: function(response) {
-					var rs = (response.responseText).replace('var tumblr_api_read = ','');
-					rs = rs.substring(0, rs.length - 2);
+					var rs = response.responseText;
 					try {
-						var m_object = JSON.parse(rs);
+						var m_object = JSON.parse(rs).response;
 						console.log(m_object.posts[0]);
-						var m_contents = m_object.posts[0]["regular-body"];
+						var m_contents = m_object.posts[0]["body"];
 						
 						if (m_object.posts[0]["type"] === "photo") {
-							m_contents = m_object.posts[0]["photo-caption"];
+							m_contents = m_object.posts[0]["caption"];
 						}
 						
 						if (m_object.posts[0]["type"] === "answer") {
@@ -65,7 +64,7 @@ XKit.extensions.read_more_now = new Object({
 						}
 
 						if (m_object.posts[0]["type"] === "link") {
-							m_contents = m_object.posts[0]["link-description"];
+							m_contents = m_object.posts[0]["description"];
 						}
 						
 						if ($(m_cont).parent().parent().find(".post_title").length > 0) {
