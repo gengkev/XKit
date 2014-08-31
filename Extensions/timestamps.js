@@ -241,8 +241,9 @@ XKit.extensions.timestamps = new Object({
 					}
 
 					// Ugly but it works?
+					// TODO: Change API key
 					var json_page_parts = permalink.replace("http://","").split("/");
-					var json_page = "http://" + json_page_parts[0] + "/api/read/json?id=" + post_id;
+					var json_page = "https://api.tumblr.com/v2/blog/" + json_page_parts[0] + "/posts?api_key=fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4&id=" + post_id;
 				
 				}
 				
@@ -409,12 +410,11 @@ XKit.extensions.timestamps = new Object({
 				dataType: "json",
 				url: json_page,
 				onload: function(response) {
-					var rs = (response.responseText);
-					var xs = rs.search('"unix-timestamp":');
-					if (xs === -1) { console.log("Unable to load timestamp - Err 11"); XKit.extensions.timestamps.show_failed(obj); return; }
-					var xe = rs.indexOf(',', xs + 17);
-					if (xe === -1) { console.log("Unable to load timestamp - Err 12"); XKit.extensions.timestamps.show_failed(obj); return; }
-					var xd = rs.substring(xs + 17, xe);
+					var rs = JSON.parse(response.responseText);
+					if (rs.meta.status !== 200) { console.log("Unable to laod timestamp - Err 11"); XKit.extensions.timestamps.show_failed(obj); return; }
+					var posts = rs.response.posts;
+					if (posts.length !== 1) { console.log("Unable to load timestamp - Err 12"); XKit.extensions.timestamps.show_failed(obj); return; }
+					var xd = posts[0].timestamp;
 					var dtx = new Date(xd * 1000);
 					var dt = moment(dtx);
 					if (XKit.extensions.timestamps.preferences.only_relative.value === true) {

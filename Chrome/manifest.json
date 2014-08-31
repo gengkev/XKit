@@ -15,7 +15,7 @@
    },
    "minimum_chrome_version": "26.0",
    "name": "XKit",
-   "permissions": [ "tabs", "http://*/*", "http://*/", "storage", "unlimitedStorage", "management" ],
+   "permissions": [ "tabs", "http://*/*", "https://*/*", "storage", "unlimitedStorage", "management" ],
    "update_url": "http://clients2.google.com/service/update2/crx",
    "web_accessible_resources": ["manifest.json", "editor.js"],
    "manifest_version": 2,
